@@ -1,12 +1,17 @@
-import { Application, Container, Graphics, extensions, CullerPlugin } from "pixi.js";
+import {
+	Application,
+	Container,
+	Graphics,
+	extensions,
+	CullerPlugin,
+} from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import { Tile } from "./Tile";
-import { Hex } from "./hexgrid/models/Hex"
+import { Hex } from "./hexgrid/models/Hex";
 import { layout } from "./hexgrid/Layout";
 import { initDevtools } from "@pixi/devtools";
 
 (async () => {
-
 	// ----------------- LOS ----------------- //
 
 	// dot product between hex A and B
@@ -18,18 +23,31 @@ import { initDevtools } from "@pixi/devtools";
 	function lineCrossesHex(A: Hex, B: Hex, hex: Tile) {
 		// define the 6 vertices of the given hex
 		const vertices = [];
-		vertices.push(new Hex(hex.hex.q + 2 / 3, hex.hex.r - 1 / 3, hex.hex.s - 1 / 3));
-		vertices.push(new Hex(hex.hex.q + 1 / 3, hex.hex.r + 1 / 3, hex.hex.s - 2 / 3));
-		vertices.push(new Hex(hex.hex.q - 1 / 3, hex.hex.r + 2 / 3, hex.hex.s - 1 / 3));
-		vertices.push(new Hex(hex.hex.q - 2 / 3, hex.hex.r + 1 / 3, hex.hex.s + 1 / 3));
-		vertices.push(new Hex(hex.hex.q - 1 / 3, hex.hex.r - 1 / 3, hex.hex.s + 2 / 3));
-		vertices.push(new Hex(hex.hex.q + 1 / 3, hex.hex.r - 2 / 3, hex.hex.s + 1 / 3));
+		vertices.push(
+			new Hex(hex.hex.q + 2 / 3, hex.hex.r - 1 / 3, hex.hex.s - 1 / 3),
+		);
+		vertices.push(
+			new Hex(hex.hex.q + 1 / 3, hex.hex.r + 1 / 3, hex.hex.s - 2 / 3),
+		);
+		vertices.push(
+			new Hex(hex.hex.q - 1 / 3, hex.hex.r + 2 / 3, hex.hex.s - 1 / 3),
+		);
+		vertices.push(
+			new Hex(hex.hex.q - 2 / 3, hex.hex.r + 1 / 3, hex.hex.s + 1 / 3),
+		);
+		vertices.push(
+			new Hex(hex.hex.q - 1 / 3, hex.hex.r - 1 / 3, hex.hex.s + 2 / 3),
+		);
+		vertices.push(
+			new Hex(hex.hex.q + 1 / 3, hex.hex.r - 2 / 3, hex.hex.s + 1 / 3),
+		);
 		// define the line between hex A and hex B
 		const V = new Hex(B.q - A.q, B.r - A.r, B.s - A.s);
 		// define the line orthogonal to line AB
 		const N = new Hex(-V.r, V.q, V.r - V.q);
 		// test each vertex to see which half plane the vertex falls on
-		let pos = 0, neg = 0;
+		let pos = 0,
+			neg = 0;
 		let count = 0;
 		for (const P of vertices) {
 			const D = dot(N, new Hex(P.q - A.q, P.r - A.r, P.s - A.s));
@@ -67,9 +85,15 @@ import { initDevtools } from "@pixi/devtools";
 			for (let r = minR; r <= maxR; r++) {
 				const s = -q - r;
 
-				if ((q === hexA.hex.q && r === hexA.hex.r) || (q === hexB.hex.q && r === hexB.hex.r)) continue;
+				if (
+					(q === hexA.hex.q && r === hexA.hex.r) ||
+					(q === hexB.hex.q && r === hexB.hex.r)
+				)
+					continue;
 
-				const hex = tiles.find(h => h.hex.q === q && h.hex.r === r && h.hex.s === s);
+				const hex = tiles.find(
+					(h) => h.hex.q === q && h.hex.r === r && h.hex.s === s,
+				);
 				if (lineCrossesHex(hexA.hex, hexB.hex, <Tile>hex)) {
 					candidates.push(<Tile>hex);
 				}
@@ -80,7 +104,7 @@ import { initDevtools } from "@pixi/devtools";
 			const da = Math.abs(a.hex.q) + Math.abs(a.hex.r);
 			const db = Math.abs(b.hex.q) + Math.abs(b.hex.r);
 			if (da !== db) return da - db;
-			return (a.hex.r - b.hex.r) || (a.hex.q - b.hex.q);
+			return a.hex.r - b.hex.r || a.hex.q - b.hex.q;
 		});
 		let totalWoods = 0;
 		let blocked = false;
@@ -129,7 +153,7 @@ import { initDevtools } from "@pixi/devtools";
 		const rOffset = Math.floor(q / 2);
 		for (let r = -rOffset; r < mapHeight - rOffset; r++) {
 			const s = -q - r;
-			const tile = new Tile(q, r, s,0xffffff,0);
+			const tile = new Tile(q, r, s, 0xffffff, 0);
 			tile.gfx.interactive = true;
 			tile.gfx.onclick = () => {
 				defender.hex = tile.hex;
@@ -142,17 +166,20 @@ import { initDevtools } from "@pixi/devtools";
 
 	//create attacker and defender tiles
 
-	const attacker = new Tile(20,10,-30,0xa52422)
+	const attacker = new Tile(20, 10, -30, 0xa52422);
 	main.addChild(attacker.gfx);
 
-	const defender = new Tile(20,10,-30,0x759AAB)
-	main.addChild(defender.gfx)
+	const defender = new Tile(20, 10, -30, 0x759aab);
+	main.addChild(defender.gfx);
 
 	const line = new Graphics();
 	main.addChild(line);
 
 	function updateLine() {
-		line.clear().moveTo(attacker.x, attacker.y).lineTo(defender.x,defender.y).stroke({ color: 0x000000, width: 2 });
+		line.clear()
+			.moveTo(attacker.x, attacker.y)
+			.lineTo(defender.x, defender.y)
+			.stroke({ color: 0x000000, width: 2 });
 	}
 
 	//pan/zoom
@@ -185,7 +212,7 @@ import { initDevtools } from "@pixi/devtools";
 	app.ticker.maxFPS = 30;
 	app.ticker.add(() => {
 		updateLine();
-		tiles.forEach(tile => {
+		tiles.forEach((tile) => {
 			tile.update();
 		});
 		defender.update();
