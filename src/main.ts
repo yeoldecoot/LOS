@@ -1,23 +1,13 @@
 import { Application, Container } from "pixi.js";
 import { Viewport } from "pixi-viewport";
-import { Hex } from "./hexgrid/models/Hex";
-import { polyPoint, layout } from "./hexgrid/Layout";
-import { HexUtils } from "./hexgrid/HexUtils";
+import { Tile } from "./Tile";
+import { layout } from "./hexgrid/Layout";
 import { initDevtools } from "@pixi/devtools";
 
 (async () => {
-	//draw a hex to the screen with a given color
-	function draw(hex: Hex) {
-		hex.gfx
-			.clear()
-			.poly(polyPoint())
-			.fill({ color: hex.color, alpha: hex.alpha })
-			.stroke({ width: 2, color: 0x000000 });
-	}
-
 	function update() {
-		hexes.forEach((hex) => {
-			draw(hex);
+		tiles.forEach((tile) => {
+			
 		});
 	}
 
@@ -37,19 +27,16 @@ import { initDevtools } from "@pixi/devtools";
 	const main = new Container();
 
 	//create hexgrid
-	const hexes: Hex[] = [];
+	const tiles: Tile[] = [];
 	const mapWidth = 41;
 	const mapHeight = 40;
 	for (let q = 0; q < mapWidth; q++) {
 		const rOffset = Math.floor(q / 2);
 		for (let r = -rOffset; r < mapHeight - rOffset; r++) {
 			const s = -q - r;
-			const hex = new Hex(q, r, s);
-			draw(hex);
-			const { x, y } = HexUtils.hexToPixel(hex, layout);
-			hex.gfx.position.set(x, y);
-			main.addChild(hex.gfx);
-			hexes.push(hex);
+			const tile = new Tile(q, r, s);
+			main.addChild(tile.gfx);
+			tiles.push(tile);
 		}
 	}
 
