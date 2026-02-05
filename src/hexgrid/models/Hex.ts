@@ -5,7 +5,7 @@ export interface HexCoordinates {
 }
 
 export class Hex {
-    q: number;
+	q: number;
 	r: number;
 	s: number;
 	constructor(q: number, r: number, s: number) {

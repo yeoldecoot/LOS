@@ -6,13 +6,13 @@ import HexUtils from "./hexgrid/HexUtils";
 
 (async () => {
 	//draw a hex to the screen with a given color
-	function draw(hex: Hex,color: number) {
-		const {x,y} = HexUtils.hexToPixel(hex,layout);
+	function draw(hex: Hex, color: number) {
+		const { x, y } = HexUtils.hexToPixel(hex, layout);
 		const gfx = new Graphics()
-		.poly(polyPoint())
-		.fill(color)
-		.stroke({ width: 2, color: 0x000000 });
-		gfx.position.set(x,y);
+			.poly(polyPoint())
+			.fill(color)
+			.stroke({ width: 2, color: 0x000000 });
+		gfx.position.set(x, y);
 		main.addChild(gfx);
 	}
 
@@ -30,29 +30,29 @@ import HexUtils from "./hexgrid/HexUtils";
 	});
 
 	//create the main container
-	const main = new Container;
+	const main = new Container();
 
 	//create hexgrid
-	const hexes = new Map<String, Hex>();
+	const hexes = new Map<string, Hex>();
 	const mapWidth = 41;
 	const mapHeight = 40;
 	for (let q = 0; q < mapWidth; q++) {
 		const rOffset = Math.floor(q / 2);
 		for (let r = -rOffset; r < mapHeight - rOffset; r++) {
-			const s = -q-r;
+			const s = -q - r;
 			const key = `${q},${r},${s}`;
-			hexes.set(key,new Hex(q,r,s));
-			draw(<Hex>hexes.get(key),0xffffff)
+			hexes.set(key, new Hex(q, r, s));
+			draw(<Hex>hexes.get(key), 0xffffff);
 		}
 	}
 
 	//create attacker hex (still need to decide between state based vs object)
 	const attackerHex = new Hex(20, 10, -30);
-	draw(attackerHex,0x555555);
+	draw(attackerHex, 0x555555);
 
 	//pan/zoom
 	const bounds = main.getBounds();
-	const width = bounds.width - layout.size.x*2;
+	const width = bounds.width - layout.size.x * 2;
 	const height = bounds.height - layout.size.y;
 	const viewport = new Viewport({
 		screenWidth: app.screen.width,
@@ -75,15 +75,10 @@ import HexUtils from "./hexgrid/HexUtils";
 			maxWidth: width,
 			maxHeight: height,
 		}); //clamp zoom
-		
-	//create heirarchy 
+
+	//create heirarchy
 	app.stage.addChild(viewport);
 	viewport.addChild(main);
-
-	
-	
-	
-
 
 	//define hierarchy
 	document.body.appendChild(app.canvas);

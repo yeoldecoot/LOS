@@ -10,23 +10,23 @@ export type LayoutDimension = {
 };
 
 const LAYOUT_FLAT = new Orientation(
-  3.0 / 2.0,
-  0.0,
-  Math.sqrt(3.0) / 2.0,
-  Math.sqrt(3.0),
-  2.0 / 3.0,
-  0.0,
-  -1.0 / 3.0,
-  Math.sqrt(3.0) / 3.0,
-  0.0,
-)
+	3.0 / 2.0,
+	0.0,
+	Math.sqrt(3.0) / 2.0,
+	Math.sqrt(3.0),
+	2.0 / 3.0,
+	0.0,
+	-1.0 / 3.0,
+	Math.sqrt(3.0) / 3.0,
+	0.0,
+);
 
 export const layout: LayoutDimension = {
-    size: {x: 50, y: 50},
-    orientation: LAYOUT_FLAT,
-    origin: {x:0, y:0},
-    spacing: 1,
-}
+	size: { x: 50, y: 50 },
+	orientation: LAYOUT_FLAT,
+	origin: { x: 0, y: 0 },
+	spacing: 1,
+};
 
 export function polyPoint(
 	circumradius = layout.size.x,
