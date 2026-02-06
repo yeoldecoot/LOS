@@ -10,6 +10,7 @@ import { Tile } from "./Tile";
 import { layout } from "./hexgrid/Layout";
 import { initDevtools } from "@pixi/devtools";
 import { updateLOS } from "./LOS";
+import { CheckBox, RadioGroup } from "@pixi/ui";
 
 (async () => {
 	// Create and initialize the application
@@ -29,6 +30,7 @@ import { updateLOS } from "./LOS";
 	const main = new Container();
 	main.cullable = true;
 	main.cullableChildren = true;
+
 	//create hexgrid
 	const tiles: Tile[] = [];
 	const mapWidth = 41;
@@ -39,7 +41,7 @@ import { updateLOS } from "./LOS";
 			const s = -q - r;
 			const tile = new Tile(q, r, s, 0xffffff, 0);
 			tile.gfx.interactive = true;
-			tile.gfx.onclick = () => {
+			tile.gfx.onpointerdown = () => {
 				defender.hex = tile.hex;
 				updateLOS(tiles, attacker, defender);
 			};
@@ -48,8 +50,7 @@ import { updateLOS } from "./LOS";
 		}
 	}
 
-	//create attacker and defender tiles
-
+	//create attacker and defender tiles and the line drawn between them
 	const attacker = new Tile(20, 10, -30, 0xa52422);
 	main.addChild(attacker.gfx);
 
@@ -66,7 +67,32 @@ import { updateLOS } from "./LOS";
 			.stroke({ color: 0x000000, width: 2 });
 	}
 
-	//pan/zoom
+	//create UI
+	const menu = new RadioGroup({
+		items: [
+			new CheckBox({
+				style: {
+					unchecked: `switch_off.png`,
+					checked: `switch_on.png`,
+				},
+			}),
+			new CheckBox({
+				style: {
+					unchecked: `switch_off.png`,
+					checked: `switch_on.png`,
+				},
+			}),
+			new CheckBox({
+				style: {
+					unchecked: `switch_off.png`,
+					checked: `switch_on.png`,
+				},
+			}),
+		],
+		type: "vertical",
+		elementsMargin: 8,
+	});
+	//create viewport
 	const bounds = main.getBounds();
 	const width = bounds.width - layout.size.x * 2;
 	const height = bounds.height - layout.size.y;
@@ -78,7 +104,7 @@ import { updateLOS } from "./LOS";
 		events: app.renderer.events,
 	});
 
-	// enable interaction plugins
+	//enable viewport interaction plugins
 	viewport
 		.moveCenter({ x: width / 2, y: height / 2 })
 		.drag() // pan with drag
@@ -104,6 +130,7 @@ import { updateLOS } from "./LOS";
 
 	//define hierarchy
 	document.body.appendChild(app.canvas);
+	app.stage.addChild(menu);
 	app.stage.addChild(viewport);
 	viewport.addChild(main);
 })();

@@ -1,5 +1,7 @@
+import { HexUtils } from "./hexgrid/HexUtils";
 import { Hex } from "./hexgrid/models/Hex";
 import { Tile } from "./Tile";
+import { layout } from "./hexgrid/Layout";
 
 // dot product between hex A and B
 function dot(a: Hex, b: Hex) {
@@ -61,12 +63,17 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 	});
 	const hexA = attacker;
 	const hexB = defender;
-	// Determine candidate rectangle in cube coordinates
+
+	const a = HexUtils.hexToPixel(hexA.hex, layout);
+	const b = HexUtils.hexToPixel(hexB.hex, layout);
+	const dx = b.x - a.x;
+	const dy = b.y - a.y;
+	const len2 = dx * dx + dy * dy;
+
 	const minQ = Math.min(hexA.hex.q, hexB.hex.q);
 	const maxQ = Math.max(hexA.hex.q, hexB.hex.q);
 	const minR = Math.min(hexA.hex.r, hexB.hex.r);
 	const maxR = Math.max(hexA.hex.r, hexB.hex.r);
-	// for each candidate in the box, check for collision
 	const candidates: Tile[] = [];
 	for (let q = minQ; q <= maxQ; q++) {
 		for (let r = minR; r <= maxR; r++) {
@@ -81,17 +88,23 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 			const hex = tiles.find(
 				(h) => h.hex.q === q && h.hex.r === r && h.hex.s === s,
 			);
-			if (lineCrossesHex(hexA.hex, hexB.hex, <Tile>hex)) {
-				candidates.push(<Tile>hex);
+			if (hex) {
+				if (lineCrossesHex(hexA.hex, hexB.hex, <Tile>hex)) {
+					candidates.push(<Tile>hex);
+				}
 			}
 		}
 	}
+	console.log(candidates);
 	// need to find the right sorting order...
-	candidates.sort((a, b) => {
-		const da = Math.abs(a.hex.q) + Math.abs(a.hex.r);
-		const db = Math.abs(b.hex.q) + Math.abs(b.hex.r);
-		if (da !== db) return da - db;
-		return a.hex.r - b.hex.r || a.hex.q - b.hex.q;
+	candidates.sort((h1, h2) => {
+		const p1 = HexUtils.hexToPixel(h1.hex, layout);
+		const p2 = HexUtils.hexToPixel(h2.hex, layout);
+
+		const t1 = ((p1.x - a.x) * dx + (p1.y - a.y) * dy) / len2;
+		const t2 = ((p2.x - a.x) * dx + (p2.y - a.y) * dy) / len2;
+
+		return t1 - t2;
 	});
 	let totalWoods = 0;
 	let blocked = false;

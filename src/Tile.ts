@@ -15,6 +15,8 @@ export class Tile {
 	intervening = false;
 	blocked = false;
 	woods = 0;
+	water = false;
+	elevation = 0;
 	constructor(q: number, r: number, s: number, color = 0xffffff, alpha = 1) {
 		this.hex = new Hex(q, r, s);
 		this.gfx = new Graphics();
@@ -25,7 +27,11 @@ export class Tile {
 	update() {
 		({ x: this.x, y: this.y } = HexUtils.hexToPixel(this.hex, layout));
 		if (this.intervening) {
-			this.draw(0x555555, 1);
+			if (this.defendersChoice) {
+				this.draw(0xff00ff, 0.5);
+			} else {
+				this.draw(0x555555, 1);
+			}
 		} else {
 			this.draw(this.color, this.alpha);
 		}
