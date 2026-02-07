@@ -45,11 +45,9 @@ import { CheckBox, RadioGroup } from "@pixi/ui";
 			tile.container.interactive = true;
 			tile.container.onpointertap = () => {
 				if (cameraMoving) return;
-				if(menu.selected === 0)
-				{
+				if (menu.selected === 0) {
 					defender.hex = tile.hex;
-				}else if (menu.selected === 1)
-				{
+				} else if (menu.selected === 1) {
 					tile.increaseWoods();
 				}
 				updateLOS(tiles, attacker, defender);
@@ -78,19 +76,19 @@ import { CheckBox, RadioGroup } from "@pixi/ui";
 
 	//create UI
 	const scale = 0.2;
-	const cursorTex = await Assets.load('assets/cursor.png');
-	const treeTex = await Assets.load('assets/tree.png');
+	const cursorTex = await Assets.load("assets/cursor.png");
+	const treeTex = await Assets.load("assets/tree.png");
 	const menu = new RadioGroup({
 		items: [
 			new CheckBox({
 				style: {
 					unchecked: new Sprite({
-						scale:scale,
+						scale: scale,
 						texture: cursorTex,
 						tint: 0xffffff,
 					}),
 					checked: new Sprite({
-						scale:scale,
+						scale: scale,
 						texture: cursorTex,
 						tint: 0xffffff,
 					}),
@@ -99,12 +97,12 @@ import { CheckBox, RadioGroup } from "@pixi/ui";
 			new CheckBox({
 				style: {
 					unchecked: new Sprite({
-						scale:scale,
+						scale: scale,
 						texture: treeTex,
 						tint: 0xffffff,
 					}),
 					checked: new Sprite({
-						scale:scale,
+						scale: scale,
 						texture: treeTex,
 						tint: 0x555555,
 					}),
@@ -115,7 +113,7 @@ import { CheckBox, RadioGroup } from "@pixi/ui";
 		elementsMargin: 8,
 	});
 
-	if(menu.innerView){
+	if (menu.innerView) {
 		menu.innerView.padding = 10;
 	}
 	menu.interactive = true;

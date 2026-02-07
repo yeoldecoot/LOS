@@ -4,8 +4,8 @@ import { HexUtils } from "./hexgrid/HexUtils";
 import { layout } from "./hexgrid/Layout";
 import { polyPoint } from "./hexgrid/Layout";
 
-const lightWoods = await Assets.load('assets/tree.png');
-const heavyWoods = await Assets.load('assets/heavy.png')
+const lightWoods = await Assets.load("assets/tree.png");
+const heavyWoods = await Assets.load("assets/heavy.png");
 
 export class Tile {
 	hex: Hex;
@@ -61,8 +61,7 @@ export class Tile {
 		if (!this.woods) {
 			this.woods = 1;
 			this.sprite.texture = lightWoods;
-		}
-		else if (this.woods === 1) {
+		} else if (this.woods === 1) {
 			this.woods = 2;
 			this.sprite.texture = heavyWoods;
 		}
@@ -76,8 +75,7 @@ export class Tile {
 	increaseElevation() {
 		if (this.elevation) {
 			this.elevation++;
-		}
-		else {
+		} else {
 			this.elevation = 1;
 		}
 	}
@@ -85,8 +83,7 @@ export class Tile {
 	decreaseWoods() {
 		if (!this.woods) {
 			this.woods = 0;
-		}
-		else if (this.woods > 0) {
+		} else if (this.woods > 0) {
 			this.woods--;
 		}
 	}
@@ -98,8 +95,9 @@ export class Tile {
 	decreaseElevation() {
 		if (this.elevation) {
 			this.elevation--;
+		} else {
+			this.elevation = -1;
 		}
-		else { this.elevation = -1; }
 	}
 }
 export default Tile;
