@@ -147,14 +147,20 @@ import { CheckBox, RadioGroup } from "@pixi/ui";
 
 	//prevent click event during viewport movement
 	let cameraMoving = false;
-	
+	let moveEndTimer: number | null = null;
+	const MOVE_IDLE_DELAY = 50; // ms after last movement to consider stable
 	viewport.on("moved", () => {
 		cameraMoving = true;
 	});
 	viewport.on("pointerup", () => {
-		requestAnimationFrame(() => {
+		if (moveEndTimer !== null) {
+			clearTimeout(moveEndTimer);
+		}
+
+		moveEndTimer = window.setTimeout(() => {
 			cameraMoving = false;
-		});
+			moveEndTimer = null;
+		}, MOVE_IDLE_DELAY);
 	});
 
 	//update
