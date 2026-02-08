@@ -1,10 +1,8 @@
-import { Assets, Sprite } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { CheckBox, RadioGroup } from "@pixi/ui";
+import { cursorTex, lightWoods, waterTex } from "./Textures";
 //create UI
 const scale = 0.2;
-const cursorTex = await Assets.load("assets/cursor.png");
-const treeTex = await Assets.load("assets/tree.png");
-const waterTex = await Assets.load("assets/water.png");
 
 export const menu = new RadioGroup({
 	items: [
@@ -26,12 +24,12 @@ export const menu = new RadioGroup({
 			style: {
 				unchecked: new Sprite({
 					scale: scale,
-					texture: treeTex,
+					texture: lightWoods,
 					tint: 0xffffff,
 				}),
 				checked: new Sprite({
 					scale: scale,
-					texture: treeTex,
+					texture: lightWoods,
 					tint: 0x555555,
 				}),
 			},

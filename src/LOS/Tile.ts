@@ -1,12 +1,9 @@
-import { Graphics, Sprite, Assets, Container } from "pixi.js";
+import { Graphics, Sprite, Container } from "pixi.js";
 import { Hex } from "../hexgrid/models/Hex";
 import { HexUtils } from "../hexgrid/HexUtils";
 import { layout } from "../hexgrid/Layout";
 import { polyPoint } from "../hexgrid/Layout";
-
-const lightWoods = await Assets.load("assets/tree.png");
-const heavyWoods = await Assets.load("assets/heavy.png");
-const waterTex = await Assets.load("assets/water.png");
+import { lightWoods, heavyWoods, waterTex } from "./Textures";
 
 export class Tile {
 	hex: Hex;
