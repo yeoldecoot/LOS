@@ -19,6 +19,8 @@ export class Tile {
 	defendersChoice = false;
 	intervening = false;
 	blocked = false;
+	partialCover = false;
+	inversePartialCover = false;
 	woods = 0;
 	water = false;
 	elevation = 0;
@@ -46,34 +48,35 @@ export class Tile {
 	}
 	update() {
 		this.updateSprite();
-		if (this.elevation > 0)
-			this.elevationText.text = `Level ${this.elevation}`;
-		else if (this.elevation < 0)
-			this.elevationText.text = `Depth ${Math.abs(this.elevation)}`;
-		else this.elevationText.text = "";
-		if (this.blocked) {
-			this.draw(0xff0000, 1);
-		} else if (this.intervening) {
-			if (this.defendersChoice) {
-				this.draw(0xff00ff, 1);
-			} else {
-				this.draw(0x555555, 1);
-			}
-		} else if (this.attacker) {
-			this.draw(0xa52422, 1);
-		} else if (this.defender) {
-			this.draw(0x759aab, 1);
-		} else if (this.blocked) {
-			this.draw(0xff0000, 1);
-		} else {
-			this.draw(this.color, this.alpha);
-		}
+		this.updateElevation();
+		this.updateColor();
 	}
 	private updateSprite() {
 		if (this.woods === 1) this.sprite.texture = lightWoods;
 		else if (this.woods === 2) this.sprite.texture = heavyWoods;
 		else if (this.water === true) this.sprite.texture = waterTex;
 		else this.sprite.texture = Texture.EMPTY;
+	}
+	private updateElevation() {
+		if (this.elevation > 0)
+			this.elevationText.text = `Level ${this.elevation}`;
+		else if (this.elevation < 0)
+			this.elevationText.text = `Depth ${Math.abs(this.elevation)}`;
+		else this.elevationText.text = "";
+	}
+	private updateColor() {
+		this.draw(this.color, this.alpha);
+		if (this.intervening) {
+			if (this.defendersChoice) {
+				this.draw(0xff00ff, 1);
+			} else {
+				this.draw(0x555555, 1);
+			}
+		}
+		if (this.attacker) this.draw(0xa52422, 1);
+		if (this.defender) this.draw(0x759aab, 1);
+		if (this.blocked) this.draw(0xff0000, 1);
+		if (this.partialCover) this.draw(0x153279, 1);
 	}
 	private draw(color: number, alpha: number) {
 		this.gfx

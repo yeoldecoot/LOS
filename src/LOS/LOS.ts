@@ -59,6 +59,7 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 	tiles.forEach((hex) => {
 		hex.blocked = false;
 		hex.intervening = false;
+		hex.partialCover = false;
 		hex.defendersChoice = false;
 	});
 	const hexA = attacker;
@@ -104,6 +105,7 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 
 		return t1 - t2;
 	});
+	const firingHeight = Math.max(hexA.elevation, hexB.elevation) + 2;
 	let totalWoods = 0;
 	let blocked = false;
 	let count = 0;
@@ -113,14 +115,16 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 	//LOS is blocked if the adjacent hex of either mechs is level 2 or more
 	if (candidates.length > 0) {
 		if (candidates[0].elevation - hexA.elevation >= 2) blocked = true;
+		if (candidates[0].elevation - hexA.elevation >= 1 && firingHeight <= hexA.elevation+2) hexA.partialCover = true;
 		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 2) blocked = true;
+		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 1 && firingHeight <= hexB.elevation+2) hexB.partialCover = true;
 	}
 	for (const candidate of candidates) {
 		candidate.intervening = true;
 		candidate.blocked = blocked;
 
 		// elevation based LOS
-		const firingHeight = Math.max(hexA.elevation, hexB.elevation) + 2;
+
 		if (candidate.elevation >= firingHeight) blocked = true;
 		// if there are too many woods in the way block LOS
 		if (candidate.woods && candidate.elevation >= firingHeight-2) totalWoods += candidate.woods;
