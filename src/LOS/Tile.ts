@@ -51,9 +51,11 @@ export class Tile {
 		else if (this.elevation < 0)
 			this.elevationText.text = `Depth ${Math.abs(this.elevation)}`;
 		else this.elevationText.text = "";
-		if (this.intervening) {
+		if (this.blocked) {
+			this.draw(0xff0000, 1);
+		} else if (this.intervening) {
 			if (this.defendersChoice) {
-				this.draw(0xff00ff, 0.5);
+				this.draw(0xff00ff, 1);
 			} else {
 				this.draw(0x555555, 1);
 			}
@@ -61,6 +63,8 @@ export class Tile {
 			this.draw(0xa52422, 1);
 		} else if (this.defender) {
 			this.draw(0x759aab, 1);
+		} else if (this.blocked) {
+			this.draw(0xff0000, 1);
 		} else {
 			this.draw(this.color, this.alpha);
 		}

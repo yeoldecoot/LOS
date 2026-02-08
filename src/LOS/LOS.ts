@@ -107,16 +107,25 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 	let totalWoods = 0;
 	let blocked = false;
 	let count = 0;
+	//LOS is blocked if one mech is fully submerged and the other isn't
+	if(losWater(attacker,defender)) blocked = true;
+	if(losWater(defender,attacker)) blocked = true;
+	//LOS is blocked if the adjacent hex of either mechs is level 2 or more
+	if (candidates.length > 0) {
+		if (candidates[0].elevation - hexA.elevation >= 2) blocked = true;
+		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 2) blocked = true;
+	}
 	for (const candidate of candidates) {
 		candidate.intervening = true;
 		candidate.blocked = blocked;
+
+		// elevation based LOS
+		const firingHeight = Math.max(hexA.elevation, hexB.elevation) + 2;
+		if (candidate.elevation >= firingHeight) blocked = true;
 		// if there are too many woods in the way block LOS
-		if (candidate.woods) {
-			totalWoods += candidate.woods;
-		}
-		if (totalWoods >= 3) {
-			blocked = true;
-		}
+		if (candidate.woods && candidate.elevation >= firingHeight-2) totalWoods += candidate.woods;
+		if (totalWoods >= 3) blocked = true;
+
 
 		count++;
 		if (count > 2) {
@@ -124,4 +133,12 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 			candidate.defendersChoice = false;
 		}
 	}
+	hexB.blocked = blocked;
+}
+
+function losWater(attacker: Tile, defender: Tile) {
+	const attackerSubmerged = attacker.elevation <= -2 && attacker.water;
+	const defenderSubmerged = defender.elevation <= -2 && defender.water;
+	if(attackerSubmerged != defenderSubmerged) return true;
+	return false;
 }
