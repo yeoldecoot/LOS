@@ -50,6 +50,7 @@ export class Tile {
 			this.elevationText.text = `Level ${this.elevation}`;
 		else if (this.elevation < 0)
 			this.elevationText.text = `Depth ${Math.abs(this.elevation)}`;
+		else this.elevationText.text = "";
 		if (this.intervening) {
 			if (this.defendersChoice) {
 				this.draw(0xff00ff, 0.5);
