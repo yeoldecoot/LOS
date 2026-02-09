@@ -75,8 +75,9 @@ export class Tile {
 		}
 		if (this.attacker) this.draw(0xa52422, 1);
 		if (this.defender) this.draw(0x759aab, 1);
+		if (this.partialCover) this.draw(0x0000ff, 1);
+		if (this.inversePartialCover) this.draw(0x00ff00, 1);
 		if (this.blocked) this.draw(0xff0000, 1);
-		if (this.partialCover) this.draw(0x153279, 1);
 	}
 	private draw(color: number, alpha: number) {
 		this.gfx

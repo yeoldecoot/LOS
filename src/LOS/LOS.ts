@@ -60,6 +60,7 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 		hex.blocked = false;
 		hex.intervening = false;
 		hex.partialCover = false;
+		hex.inversePartialCover = false;
 		hex.defendersChoice = false;
 	});
 	const hexA = attacker;
@@ -111,13 +112,13 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 	let count = 0;
 	//LOS is blocked if one mech is fully submerged and the other isn't
 	if(losWater(attacker,defender)) blocked = true;
-	if(losWater(defender,attacker)) blocked = true;
 	//LOS is blocked if the adjacent hex of either mechs is level 2 or more
 	if (candidates.length > 0) {
 		if (candidates[0].elevation - hexA.elevation >= 2) blocked = true;
-		if (candidates[0].elevation - hexA.elevation >= 1 && firingHeight <= hexA.elevation+2) hexA.partialCover = true;
+		if (candidates[0].elevation - hexA.elevation === 1 && firingHeight <= hexA.elevation+2) hexA.partialCover = true;
+		console.log(candidates[0].elevation - hexA.elevation);
 		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 2) blocked = true;
-		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 1 && firingHeight <= hexB.elevation+2) hexB.partialCover = true;
+		if (candidates[candidates.length - 1].elevation - hexB.elevation === 1 && firingHeight <= hexB.elevation+2) hexB.partialCover = true;
 	}
 	for (const candidate of candidates) {
 		candidate.intervening = true;
@@ -137,12 +138,23 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 			candidate.defendersChoice = false;
 		}
 	}
+	hexA.blocked = blocked;
 	hexB.blocked = blocked;
 }
 
 function losWater(attacker: Tile, defender: Tile) {
+	//get the state of attacker and defender
 	const attackerSubmerged = attacker.elevation <= -2 && attacker.water;
+	const attackerPartiallySubmerged = attacker.elevation === -1 && attacker.water && !attackerSubmerged;
 	const defenderSubmerged = defender.elevation <= -2 && defender.water;
-	if(attackerSubmerged != defenderSubmerged) return true;
+	const defenderPartiallySubmerged = defender.elevation === -1 && defender.water && !defenderSubmerged;
+	//if only one mech is partially submerged, add partial cover
+	if(attackerPartiallySubmerged && !defender.water) attacker.partialCover = true;
+	if(defenderPartiallySubmerged && !attacker.water) attacker.partialCover = true;
+	//if one mech is partially submerged and the other is fully submerged, add inverse partial cover
+	if(attackerPartiallySubmerged && defenderSubmerged) attacker.inversePartialCover = true;
+	if(defenderPartiallySubmerged && attackerSubmerged) defender.inversePartialCover = true;
+	
+	if(attackerSubmerged != defenderSubmerged && !defenderPartiallySubmerged && !attackerPartiallySubmerged) return true;
 	return false;
 }
