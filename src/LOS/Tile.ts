@@ -19,6 +19,7 @@ export class Tile {
 	defendersChoice = false;
 	intervening = false;
 	blocked = false;
+	dcBlocked = false;
 	partialCover = false;
 	inversePartialCover = false;
 	woods = 0;
@@ -77,6 +78,7 @@ export class Tile {
 		if (this.defender) this.draw(0x759aab, 1);
 		if (this.partialCover) this.draw(0x0000ff, 1);
 		if (this.inversePartialCover) this.draw(0x00ff00, 1);
+		if (this.dcBlocked) this.draw(0xff0000, 0.5);
 		if (this.blocked) this.draw(0xff0000, 1);
 	}
 	private draw(color: number, alpha: number) {

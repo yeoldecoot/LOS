@@ -55,16 +55,15 @@ function lineCrossesHex(A: Hex, B: Hex, hex: Tile) {
 	return pos > 0 && neg > 0;
 }
 
-export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
+export function updateLOS(tiles: Tile[], hexA: Tile, hexB: Tile) {
 	tiles.forEach((hex) => {
 		hex.blocked = false;
+		hex.dcBlocked = false;
 		hex.intervening = false;
 		hex.partialCover = false;
 		hex.inversePartialCover = false;
 		hex.defendersChoice = false;
 	});
-	const hexA = attacker;
-	const hexB = defender;
 
 	const a = HexUtils.hexToPixel(hexA.hex, layout);
 	const b = HexUtils.hexToPixel(hexB.hex, layout);
@@ -106,55 +105,115 @@ export function updateLOS(tiles: Tile[], attacker: Tile, defender: Tile) {
 
 		return t1 - t2;
 	});
+	let blocked = false;
+	if (candidates.some((candidate) => candidate.defendersChoice)) {
+		const lineOne: Tile[] = [];
+		const lineTwo: Tile[] = [];
+		let blockedOne = false;
+		let blockedTwo = false;
+		let count = 0;
+		candidates.forEach((candidate) => {
+			count++;
+			if (count === 1) lineOne.push(candidate);
+			if (count === 2) lineTwo.push(candidate);
+			if (count === 3) {
+				count = 0;
+				lineOne.push(candidate);
+				lineTwo.push(candidate);
+			}
+		});
+		if (losLogic(hexA, hexB, lineOne)) blockedOne = true;
+		if (losLogic(hexA, hexB, lineTwo)) blockedTwo = true;
+		if (blockedOne && blockedTwo) blocked = true;
+		else if (blockedOne || blockedTwo) {
+			if (blockedOne) {
+				lineOne.forEach((candidate) => {
+					candidate.dcBlocked = true;
+				});
+			}
+			if (blockedTwo) {
+				lineTwo.forEach((candidate) => {
+					if (blockedTwo) candidate.dcBlocked = true;
+				});
+			}
+			hexA.dcBlocked = true;
+			hexB.dcBlocked = true;
+		}
+	} else {
+		if (losLogic(hexA, hexB, candidates)) blocked = true;
+	}
+	candidates.forEach((candidate) => {
+		candidate.blocked = blocked;
+	});
+	hexA.blocked = blocked;
+	hexB.blocked = blocked;
+}
+
+function losLogic(hexA: Tile, hexB: Tile, candidates: Tile[]) {
 	const firingHeight = Math.max(hexA.elevation, hexB.elevation) + 2;
 	let totalWoods = 0;
 	let blocked = false;
 	let count = 0;
 	//LOS is blocked if one mech is fully submerged and the other isn't
-	if(losWater(attacker,defender)) blocked = true;
+	if (losWater(hexA, hexB)) blocked = true;
 	//LOS is blocked if the adjacent hex of either mechs is level 2 or more
 	if (candidates.length > 0) {
 		if (candidates[0].elevation - hexA.elevation >= 2) blocked = true;
-		if (candidates[0].elevation - hexA.elevation === 1 && firingHeight <= hexA.elevation+2) hexA.partialCover = true;
-		console.log(candidates[0].elevation - hexA.elevation);
-		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 2) blocked = true;
-		if (candidates[candidates.length - 1].elevation - hexB.elevation === 1 && firingHeight <= hexB.elevation+2) hexB.partialCover = true;
+		if (
+			candidates[0].elevation - hexA.elevation === 1 &&
+			firingHeight <= hexA.elevation + 2
+		)
+			hexA.partialCover = true;
+		if (candidates[candidates.length - 1].elevation - hexB.elevation >= 2)
+			blocked = true;
+		if (
+			candidates[candidates.length - 1].elevation - hexB.elevation ===
+				1 &&
+			firingHeight <= hexB.elevation + 2
+		)
+			hexB.partialCover = true;
 	}
 	for (const candidate of candidates) {
 		candidate.intervening = true;
-		candidate.blocked = blocked;
-
-		// elevation based LOS
-
-		if (candidate.elevation >= firingHeight) blocked = true;
-		// if there are too many woods in the way block LOS
-		if (candidate.woods && candidate.elevation >= firingHeight-2) totalWoods += candidate.woods;
-		if (totalWoods >= 3) blocked = true;
-
-
 		count++;
-		if (count > 2) {
+		if (count >= 2) {
 			count = 0;
 			candidate.defendersChoice = false;
 		}
+		// elevation based LOS
+		if (candidate.elevation >= firingHeight) blocked = true;
+		// if there are too many woods in the way block LOS
+		if (candidate.woods && candidate.elevation >= firingHeight - 2)
+			totalWoods += candidate.woods;
+		if (totalWoods >= 3) blocked = true;
 	}
-	hexA.blocked = blocked;
-	hexB.blocked = blocked;
+	return blocked;
 }
 
 function losWater(attacker: Tile, defender: Tile) {
 	//get the state of attacker and defender
 	const attackerSubmerged = attacker.elevation <= -2 && attacker.water;
-	const attackerPartiallySubmerged = attacker.elevation === -1 && attacker.water && !attackerSubmerged;
+	const attackerPartiallySubmerged =
+		attacker.elevation === -1 && attacker.water && !attackerSubmerged;
 	const defenderSubmerged = defender.elevation <= -2 && defender.water;
-	const defenderPartiallySubmerged = defender.elevation === -1 && defender.water && !defenderSubmerged;
+	const defenderPartiallySubmerged =
+		defender.elevation === -1 && defender.water && !defenderSubmerged;
 	//if only one mech is partially submerged, add partial cover
-	if(attackerPartiallySubmerged && !defender.water) attacker.partialCover = true;
-	if(defenderPartiallySubmerged && !attacker.water) attacker.partialCover = true;
+	if (attackerPartiallySubmerged && !defender.water)
+		attacker.partialCover = true;
+	if (defenderPartiallySubmerged && !attacker.water)
+		attacker.partialCover = true;
 	//if one mech is partially submerged and the other is fully submerged, add inverse partial cover
-	if(attackerPartiallySubmerged && defenderSubmerged) attacker.inversePartialCover = true;
-	if(defenderPartiallySubmerged && attackerSubmerged) defender.inversePartialCover = true;
-	
-	if(attackerSubmerged != defenderSubmerged && !defenderPartiallySubmerged && !attackerPartiallySubmerged) return true;
+	if (attackerPartiallySubmerged && defenderSubmerged)
+		attacker.inversePartialCover = true;
+	if (defenderPartiallySubmerged && attackerSubmerged)
+		defender.inversePartialCover = true;
+
+	if (
+		attackerSubmerged != defenderSubmerged &&
+		!defenderPartiallySubmerged &&
+		!attackerPartiallySubmerged
+	)
+		return true;
 	return false;
 }
