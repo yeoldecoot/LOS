@@ -96,6 +96,7 @@ export function updateLOS(tiles: Tile[], hexA: Tile, hexB: Tile) {
 			}
 		}
 	}
+	const EPS = 1e-9;
 	candidates.sort((h1, h2) => {
 		const p1 = HexUtils.hexToPixel(h1.hex, layout);
 		const p2 = HexUtils.hexToPixel(h2.hex, layout);
@@ -103,8 +104,17 @@ export function updateLOS(tiles: Tile[], hexA: Tile, hexB: Tile) {
 		const t1 = ((p1.x - a.x) * dx + (p1.y - a.y) * dy) / len2;
 		const t2 = ((p2.x - a.x) * dx + (p2.y - a.y) * dy) / len2;
 
-		return t1 - t2;
+		const dt = t1 - t2;
+
+		if (Math.abs(dt) > EPS) {
+			return dt;
+		}
+		if (h1.hex.q !== h2.hex.q) {
+			return h1.hex.q - h2.hex.q;
+		}
+		return h1.hex.r - h2.hex.r;
 	});
+	
 	let blocked = false;
 	if (candidates.some((candidate) => candidate.defendersChoice)) {
 		const lineOne: Tile[] = [];
